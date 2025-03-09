@@ -1,7 +1,6 @@
 package com.hometask.dkp.hsbctransactionmanagement.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;

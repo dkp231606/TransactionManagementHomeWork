@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 public interface TransactionService {
     /**
      * 在系统中新增交易信息
-     * @param transaction
+     * @param transactionData
      * @return
      */
     Transaction createTransaction(TransactionData transactionData);
