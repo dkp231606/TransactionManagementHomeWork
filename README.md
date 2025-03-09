@@ -177,21 +177,22 @@ Step1：构建Docker镜像
 ```sh
 docker build -t hsbc-transaction-management:v1.3 .
 ```
-![img.png](image\dockerBuild.png)
+![img.png](image/dockerBuild.png)
+
 Step2：启动Docker容器
  ```sh
 docker run -d -p 80:80 hsbc-transaction-management:v1.3
  ```
 
-![img.png](image\runDocker.png)
+![img.png](image/runDocker.png)
 
 ## 测试验证
 1) UT单元测试结果
 
-![img.png](image\utTestResult.png)
+![img.png](image/utTestResult.png)
 2) 代码覆盖率验证结果
 
-![img.png](image\coverageTestResult.png)
+![img.png](image/coverageTestResult.png)
 
 
 3) 性能测试验证结果
@@ -200,7 +201,7 @@ docker run -d -p 80:80 hsbc-transaction-management:v1.3
 
 压测代码路径：com/hometask/dkp/hsbctransactionmanagement/StressTest/StressTest.java
 
-![img.png](image\stressTestbyCode.png)
+![img.png](image/stressTestbyCode.png)
 
 * 使用JMeter进行压测结果
 模拟用户并发数100，每人交易操作100次，测试创建，更新，删除，查询和分页查询交易信息接口。
@@ -212,7 +213,7 @@ Result/JMeter结果报告/report_result
 
 压测结果：
 
-![img.png](image\JMeterResult.png)
+![img.png](image/JMeterResult.png)
 
 
 ## 下一步工作
