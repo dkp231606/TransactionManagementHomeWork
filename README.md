@@ -33,6 +33,22 @@
 swagger地址：http://47.122.0.113/swagger-ui/index.html
 
 
+## 安装部署
+采用Docker容器部署
+
+Step1：构建Docker镜像
+```sh
+docker build -t hsbc-transaction-management:v1.3 .
+```
+![img.png](image/dockerBuild.png)
+
+Step2：启动Docker容器
+ ```sh
+docker run -d -p 80:80 hsbc-transaction-management:v1.3
+ ```
+
+![img.png](image/runDocker.png)
+
 ## 工程结构
 ``` 
 HSBC
@@ -144,7 +160,7 @@ HSBC
 * 通过swagger api进行api接口功能验证及覆盖率验证
 * 使用JMeter进行性能压力测试验证
 
-测试用例
+## 测试用例
 
 1）创建交易信息
 * 参数校验失败，则创建失败
@@ -169,22 +185,6 @@ HSBC
 5）获取交易分页查询结果
 * 查询正常，返回结果
 * 重复查询相同入参，除第一次，后面都是查询缓存（通过观察db日志信息）
-
-## 安装部署
-采用Docker容器部署
-
-Step1：构建Docker镜像
-```sh
-docker build -t hsbc-transaction-management:v1.3 .
-```
-![img.png](image/dockerBuild.png)
-
-Step2：启动Docker容器
- ```sh
-docker run -d -p 80:80 hsbc-transaction-management:v1.3
- ```
-
-![img.png](image/runDocker.png)
 
 ## 测试验证
 1) UT单元测试结果
