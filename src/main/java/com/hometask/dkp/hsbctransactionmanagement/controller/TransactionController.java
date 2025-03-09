@@ -49,22 +49,22 @@ public class TransactionController {
 
     /**
      * 创建交易信息
-     * @param transaction
+     * @param transactionData
      * @return
      */
     @PostMapping
-    public ResponseResult<?> createTransaction(@RequestBody @Valid Transaction transaction) {
+    public ResponseResult<?> createTransaction(@RequestBody @Valid TransactionData transactionData) {
         Transaction result = new Transaction();
-        result.setTransactionId(transaction.getTransactionId());
-        result.setSourceAccountId(transaction.getSourceAccountId());
-        result.setTargetAccountId(transaction.getTargetAccountId());
-        result.setAmount(transaction.getAmount());
-        result.setDescription(transaction.getDescription());
+        result.setTransactionId(transactionData.getTransactionId());
+        result.setSourceAccountId(transactionData.getSourceAccountId());
+        result.setTargetAccountId(transactionData.getTargetAccountId());
+        result.setAmount(transactionData.getAmount());
+        result.setDescription(transactionData.getDescription());
         result.setCreateTime(System.currentTimeMillis());
         result.setUpdateTime(System.currentTimeMillis());
 
         try {
-            Transaction transaction2 = transactionService.createTransaction(transaction);
+            Transaction transaction2 = transactionService.createTransaction(transactionData);
 
             return ResponseResult.succeed(transaction2);
         } catch (TransactionException e) {

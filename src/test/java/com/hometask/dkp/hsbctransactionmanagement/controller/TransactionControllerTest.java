@@ -3,16 +3,12 @@ package com.hometask.dkp.hsbctransactionmanagement.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hometask.dkp.hsbctransactionmanagement.entity.Transaction;
 import com.hometask.dkp.hsbctransactionmanagement.service.TransactionService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,6 +32,10 @@ class TransactionControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * 未重复transactionId交易，则创建成功 API
+     * @throws Exception
+     */
     @Test
     public void testCreateTransaction() throws Exception {
         String transactionId = "transactionIdCreateTest";
@@ -48,7 +48,7 @@ class TransactionControllerTest {
         transaction.setTargetAccountId(1002L);
 
         String transactionCreateJson = objectMapper.writeValueAsString(transaction);
-        when(transactionService.createTransaction(any(Transaction.class))).thenReturn(transaction);
+        when(transactionService.createTransaction(any(TransactionData.class))).thenReturn(transaction);
 
         mockMvc.perform(post("/api/transaction")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,6 +62,10 @@ class TransactionControllerTest {
                 .andDo(print());
     }
 
+    /**
+     * 查询交易，查询成功 API
+     * @throws Exception
+     */
     @Test
     public void testGetTransaction() throws Exception {
         String transactionId = "transactionIdGetTest";
@@ -89,6 +93,10 @@ class TransactionControllerTest {
                 .andDo(print());
     }
 
+    /**
+     * 修改交易，修改成功 API
+     * @throws Exception
+     */
     @Test
     public void testUpdateTransaction() throws Exception {
         String transactionId = "transactionIdUpdateTest";
@@ -109,6 +117,10 @@ class TransactionControllerTest {
                 .andExpect(jsonPath("$.data.transactionId").value(transactionId));
     }
 
+    /**
+     * 删除交易，删除成功 API
+     * @throws Exception
+     */
     @Test
     public void testDeleteTransaction() throws Exception {
         when(transactionService.deleteTransaction(any(Long.class))).thenReturn(true);
@@ -117,6 +129,10 @@ class TransactionControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * 查询正常，返回结果 API
+     * @throws Exception
+     */
     @Test
     public void testGetTransactionList() throws Exception {
         String transactionId = "transactionIdGetListTest";

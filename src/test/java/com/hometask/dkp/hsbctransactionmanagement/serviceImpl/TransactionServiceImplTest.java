@@ -1,5 +1,6 @@
 package com.hometask.dkp.hsbctransactionmanagement.serviceImpl;
 
+import com.hometask.dkp.hsbctransactionmanagement.controller.TransactionData;
 import com.hometask.dkp.hsbctransactionmanagement.entity.Transaction;
 import com.hometask.dkp.hsbctransactionmanagement.exception.TransactionException;
 import com.hometask.dkp.hsbctransactionmanagement.repository.TransactionMemoryRepository;
@@ -25,6 +26,7 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -49,8 +51,12 @@ public class TransactionServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
+
+    /**
+     * 查询交易id存在，查询成功
+     */
     @Test
-    public void testFindIdNotCache() {
+    public void testFindIdCacheIdExits() {
         Long id = 1L;
         Transaction transaction = new Transaction();
         transaction.setId(id);
@@ -63,70 +69,83 @@ public class TransactionServiceImplTest {
         assertEquals(transaction, result);
     }
 
+    /**
+     * 查询交易id不存在，查询失败
+     */
     @Test
-    public void testFindIdByCache() {
+    public void testFindIdCacheIdNotExists() {
         Long id = 1L;
         Transaction transaction = new Transaction();
         transaction.setId(id);
         transaction.setTransactionId("test1");
         transaction.setAmount(BigDecimal.valueOf(101.0));
         transaction.setDescription("description");
-        transaction.setSourceAccountId(1001L);
-        transaction.setTargetAccountId(1002L);
-        when(transactionMemoryRepository.findById(id)).thenReturn(Optional.ofNullable(transaction));
-        Transaction result = transactionService.findIdByCache(id);
-        assertNotNull(result);
-        verify(transactionService, times(1)).findIdByCache(id);
 
-        Transaction result1 = transactionService.findIdByCache(id);
-        assertNotNull(result1);
-        verify(transactionService, times(2)).findIdByCache(id);
+        when(transactionMemoryRepository.findById(id)).thenReturn(Optional.empty());
+
+        TransactionException exception = assertThrows(TransactionException.class, () -> transactionService.findIdByCache(id));
+        assertEquals(exception.getMessage(), "The id: " + id + " does not exist");
     }
 
-
+    /**
+     * 未重复transactionId交易，则创建成功
+     */
     @Test
     public void testCreateTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setTransactionId("test1");
-        transaction.setAmount(BigDecimal.valueOf(100.0));
-        transaction.setDescription("description");
-        transaction.setSourceAccountId(1001L);
-        transaction.setTargetAccountId(1002L);
+        TransactionData transactionData = new TransactionData();
+        transactionData.setTransactionId("test1");
+        transactionData.setAmount(BigDecimal.valueOf(100.0));
+        transactionData.setDescription("description");
+        transactionData.setSourceAccountId(1001L);
+        transactionData.setTargetAccountId(1002L);
 
         Transaction savedTransaction = new Transaction();
-        savedTransaction.setId(1L);
         savedTransaction.setTransactionId("test1");
         savedTransaction.setAmount(BigDecimal.valueOf(100.0));
         savedTransaction.setDescription("description");
-        transaction.setSourceAccountId(1001L);
-        transaction.setTargetAccountId(1002L);
+        transactionData.setSourceAccountId(1001L);
+        transactionData.setTargetAccountId(1002L);
 
-        when(transactionMemoryRepository.save(transaction)).thenReturn(savedTransaction);
+        when(transactionMemoryRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
 
-        Transaction result = transactionService.createTransaction(transaction);
+        Transaction result = transactionService.createTransaction(transactionData);
         assertEquals(savedTransaction, result);
-        verify(transactionMemoryRepository, times(1)).save(transaction);
+        verify(transactionMemoryRepository, times(1)).save(any(Transaction.class));
     }
 
+    /**
+     * 创建重复的transactionId交易，创建失败
+     */
     @Test
     public void testCreateTransactionForTransactionIdExists() {
         String transactionId = "transactionIdTest";
+        TransactionData transactionData = new TransactionData();
+        transactionData.setTransactionId(transactionId);
+        transactionData.setAmount(BigDecimal.valueOf(220.0));
+        transactionData.setDescription("description");
+        transactionData.setSourceAccountId(1001L);
+        transactionData.setTargetAccountId(1002L);
+
         Transaction transaction = new Transaction();
-        transaction.setTransactionId(transactionId);
-        transaction.setAmount(BigDecimal.valueOf(220.0));
+        transaction.setId(1L);
+        transaction.setTransactionId("test1");
+        transaction.setAmount(BigDecimal.valueOf(100.0));
         transaction.setDescription("description");
-        transaction.setSourceAccountId(1001L);
-        transaction.setTargetAccountId(1002L);
+        transactionData.setSourceAccountId(1001L);
+        transactionData.setTargetAccountId(1002L);
 
         when(transactionMemoryRepository.findByTransactionId(transactionId)).thenReturn(Optional.of(new Transaction()));
 
-        TransactionException exception = assertThrows(TransactionException.class, () -> transactionService.createTransaction(transaction));
+        TransactionException exception = assertThrows(TransactionException.class, () -> transactionService.createTransaction(transactionData));
         assertEquals(exception.getMessage(), "The TransactionId: " + transactionId + " already exists");
         verify(transactionMemoryRepository, times(1)).findByTransactionId(transactionId);
         verify(transactionMemoryRepository, times(0)).save(transaction);
 
     }
 
+    /**
+     * 修改交易id存在，修改成功
+     */
     @Test
     public void testUpdateTransaction() {
         Long id = 1L;
@@ -159,6 +178,9 @@ public class TransactionServiceImplTest {
         verify(transactionMemoryRepository, times(1)).save(transaction);
     }
 
+    /**
+     * 修改交易id不存在，修改失败
+     */
     @Test
     public void testUpdateTransactionIdNotExists() {
         Long id = 1L;
@@ -178,6 +200,9 @@ public class TransactionServiceImplTest {
         verify(transactionMemoryRepository, times(0)).save(transaction);
     }
 
+    /**
+     * 删除交易id存在，删除成功
+     */
     @Test
     public void testDeleteTransaction() {
         Long id = 1L;
@@ -186,6 +211,9 @@ public class TransactionServiceImplTest {
         verify(transactionMemoryRepository, times(1)).deleteById(id);
     }
 
+    /**
+     * 修改交易id不存在，修改失败
+     */
     @Test
     public void testDeleteTransactionNotExist() {
         // Arrange
@@ -201,6 +229,9 @@ public class TransactionServiceImplTest {
         verify(transactionMemoryRepository, times(0)).deleteById(id);
     }
 
+    /**
+     * 查询正常，返回结果
+     */
     @Test
     public void TestGetAllTransactionInfo() {
         Pageable pageable = PageRequest.of(1, 1, Sort.by("id").descending());

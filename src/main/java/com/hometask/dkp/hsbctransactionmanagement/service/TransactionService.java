@@ -1,5 +1,6 @@
 package com.hometask.dkp.hsbctransactionmanagement.service;
 
+import com.hometask.dkp.hsbctransactionmanagement.controller.TransactionData;
 import com.hometask.dkp.hsbctransactionmanagement.entity.Transaction;
 import org.springframework.data.domain.Page;
 
@@ -14,7 +15,7 @@ public interface TransactionService {
      * @param transaction
      * @return
      */
-    Transaction createTransaction(Transaction transaction);
+    Transaction createTransaction(TransactionData transactionData);
 
     /**
      * 修改事件

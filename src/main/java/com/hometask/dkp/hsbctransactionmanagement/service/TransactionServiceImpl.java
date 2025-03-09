@@ -1,5 +1,6 @@
 package com.hometask.dkp.hsbctransactionmanagement.service;
 
+import com.hometask.dkp.hsbctransactionmanagement.controller.TransactionData;
 import com.hometask.dkp.hsbctransactionmanagement.entity.Transaction;
 import com.hometask.dkp.hsbctransactionmanagement.exception.TransactionException;
 import com.hometask.dkp.hsbctransactionmanagement.repository.TransactionMemoryRepository;
@@ -47,20 +48,35 @@ public class TransactionServiceImpl implements TransactionService {
     @Cacheable(value = "transactionInfo", key = "'_' + #id")
     public Transaction findIdByCache(Long id) {
         log.info("findIdByCache");
-        return transactionMemoryRepository.findById(id).orElse(null);
+        Transaction transactionInfo = transactionMemoryRepository.findById(id).orElse(null);
+        if (transactionInfo == null) {
+            throw new TransactionException("The id: " + id + " does not exist");
+        }
+        return transactionInfo;
     }
 
     /**
      * 创建交易信息
-     * @param transaction
+     * @param transactionData
      * @return
      */
     @Override
-    public Transaction createTransaction(Transaction transaction) {
-        Optional<Transaction> transactionInfo = transactionMemoryRepository.findByTransactionId(transaction.getTransactionId());
+    public Transaction createTransaction(TransactionData transactionData) {
+        Optional<Transaction> transactionInfo = transactionMemoryRepository.findByTransactionId(transactionData.getTransactionId());
         if (transactionInfo.isPresent()) {
-            throw new TransactionException("The TransactionId: " + transaction.getTransactionId() + " already exists");
+            throw new TransactionException("The TransactionId: " + transactionData.getTransactionId() + " already exists");
         }
+
+        Transaction transaction = new Transaction();
+        transaction.setSourceAccountId(transactionData.getSourceAccountId());
+        transaction.setTargetAccountId(transactionData.getTargetAccountId());
+        transaction.setAmount(transactionData.getAmount());
+        transaction.setDescription(transactionData.getDescription());
+        transaction.setTransactionId(transactionData.getTransactionId());
+        long dateTime = System.currentTimeMillis();
+        transaction.setCreateTime(dateTime);
+        transaction.setUpdateTime(dateTime);
+
         return transactionMemoryRepository.save(transaction);
     }
 

@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class StressTest {
     private static final int NUMBER_OF_THREADS = 200; // 并发线程数
-    private static final int TRANSACTIONS_PER_THREAD = 100; // 每个线程执行的交易次数
+    private static final int TRANSACTIONS_PER_THREAD = 250; // 每个线程执行的交易次数
     private static final AtomicInteger successfulTransactions = new AtomicInteger(0); // 成功交易计数
 
     public static void main(String[] args) {
@@ -28,7 +28,7 @@ public class StressTest {
                 try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                     for (int j = 0; j < TRANSACTIONS_PER_THREAD; j++) {
                         // 调用转账接口
-                        boolean success = createTransactionTest(httpClient, "stressTest" + random.nextInt(), 1001L, 2001L, BigDecimal.valueOf(100.0));
+                        boolean success = createTransactionTest(httpClient, "stressTest" + random.nextInt(), 1001L, 2001L, BigDecimal.valueOf(100.0), "test");
                         if (success) {
                             successfulTransactions.incrementAndGet();
                         }
@@ -49,7 +49,7 @@ public class StressTest {
         System.out.println("Total time: " + (endTime - startTime) + " ms");
     }
 
-    private static boolean createTransactionTest(CloseableHttpClient httpClient, String transactionId, Long sourceAccountId, Long targetAccountId, BigDecimal amount) {
+    private static boolean createTransactionTest(CloseableHttpClient httpClient, String transactionId, Long sourceAccountId, Long targetAccountId, BigDecimal amount, String description) {
         try {
             // 创建 POST 请求
             HttpPost httpPost = new HttpPost("http://localhost:8080/api/transaction");
@@ -57,7 +57,7 @@ public class StressTest {
 
             // 设置请求体
 //            "{\"transactionNo\":\"transactionIdTest\",\"amount\":220.0,\"description\":\"description\",\"sourceAccountId\":1001,\"targetAccountId\":2001}";
-            String jsonBody = String.format("{\"transactionId\": \"%s\", \"sourceAccountId\": \"%d\", \"targetAccountId\": \"%d\", \"amount\": %.2f}",transactionId, sourceAccountId, targetAccountId, amount);
+            String jsonBody = String.format("{\"transactionId\": \"%s\", \"sourceAccountId\": \"%d\", \"targetAccountId\": \"%d\", \"amount\": %.2f,\"description\": \"%s\"}",transactionId, sourceAccountId, targetAccountId, amount, description);
             httpPost.setEntity(new StringEntity(jsonBody));
 
             // 发送请求并获取响应
